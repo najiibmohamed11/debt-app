@@ -1,16 +1,4 @@
 # debt_manager
 
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+this is the ui i design  to built this app  
+![Untitled](https://github.com/najiibmohamed11/debt-app/assets/114617596/85c7535e-1e92-443a-840a-24fe8eed3022)
