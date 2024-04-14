@@ -14,9 +14,11 @@ class Home extends StatefulWidget {
 }
 
 String? nameofthedebter;
+String selectedCategory = "female";
 
 final debtorsBox = Hive.box("debtorsBox");
-void addNewDebtor(String newDebtor) {
+
+void addNewDebtor(String newDebtor, String selectedCategory) {
   // Get the current highest key in the box
   int newKey = 1;
   if (debtorsBox.isNotEmpty) {
@@ -25,14 +27,20 @@ void addNewDebtor(String newDebtor) {
   }
 
   // Put the new debtor in the box with an auto-incremented key
-  debtorsBox.put(newKey, newDebtor);
+  debtorsBox.put(newKey, [newDebtor, selectedCategory, 0.0, 0]);
 }
 
 class _HomeState extends State<Home> {
   @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    debtorsBox.clear();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    String? selectedCategory = "famale";
-    final List<String> categories = ['male', 'famale']; // Examp
+    final List<String> categories = ['male', 'female']; // Examp
     Future<void> opendilogbox() => showDialog(
           context: context,
           builder: (context) => Dialog(
@@ -77,7 +85,7 @@ class _HomeState extends State<Home> {
                       ),
                       onChanged: (String? newValue) {
                         setState(() {
-                          selectedCategory = newValue;
+                          selectedCategory = newValue!;
                         });
                       },
                       items: categories
@@ -94,7 +102,7 @@ class _HomeState extends State<Home> {
                   MaterialButton(
                     onPressed: () {
                       setState(() {
-                        addNewDebtor(nameofthedebter!);
+                        addNewDebtor(nameofthedebter!, selectedCategory);
                       });
                       Navigator.pop(context);
                     },
@@ -196,26 +204,33 @@ class _HomeState extends State<Home> {
               ),
               // debtorsBox.isEmpty
               //     ? Text("no one is in you'r debtors")
-              //     :
               Expanded(
                 child: ListView.separated(
                   itemCount: debtorsBox.length,
                   itemBuilder: (context, index) {
+                    final debtorData = debtorsBox.getAt(index)
+                        as List<dynamic>?; // Cast to avoid type issues
+                    if (debtorData == null || debtorData.length < 4) {
+                      return SizedBox.shrink(); // or some error widget
+                    }
+                    String nameOfDebtor = debtorData[0] as String;
+                    String category = debtorData[1] as String;
+                    double totalDollar = debtorData[2] as double;
+                    int totalSomaliShilling = debtorData[3] as int;
+
                     return DebtorsCard(
-                      Total_dollor: 12.0,
-                      Total_shiling_somali: 20,
-                      imagepath: selectedCategory == 'famale'
+                      imagepath: category == 'female'
                           ? "images/hijabgirl.png"
                           : "images/black man.png",
-                      titile: debtorsBox.getAt(index),
+                      titile: nameOfDebtor,
+                      Total_dollor: totalDollar,
+                      Total_shiling_somali: totalSomaliShilling,
                     );
                   },
                   separatorBuilder: (context, index) =>
                       Divider(), // Adds a divider between each item
                 ),
               ),
-
-              Divider()
             ],
           ),
         ),
