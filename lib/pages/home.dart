@@ -1,6 +1,7 @@
 import 'dart:ffi';
 import 'dart:math';
 
+import 'package:debt_manager/pages/items.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -35,7 +36,6 @@ class _HomeState extends State<Home> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    debtorsBox.clear();
   }
 
   @override
@@ -119,9 +119,15 @@ class _HomeState extends State<Home> {
         );
 
     return Scaffold(
-      floatingActionButton: FloatingActionButton(onPressed: () {
-        opendilogbox();
-      }),
+      floatingActionButton: FloatingActionButton(
+          backgroundColor: Colors.green,
+          child: Icon(
+            Icons.add,
+            color: Colors.white,
+          ),
+          onPressed: () {
+            opendilogbox();
+          }),
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
@@ -225,6 +231,15 @@ class _HomeState extends State<Home> {
                       titile: nameOfDebtor,
                       Total_dollor: totalDollar,
                       Total_shiling_somali: totalSomaliShilling,
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => ItemsPage(
+                                    debetorname: nameOfDebtor,
+                                  )),
+                        );
+                      },
                     );
                   },
                   separatorBuilder: (context, index) =>
@@ -246,16 +261,19 @@ class DebtorsCard extends StatelessWidget {
     // required this.mounth,
     required this.Total_dollor,
     required this.Total_shiling_somali,
+    required this.onTap,
   });
   String? imagepath;
   String? titile;
   // String? mounth;
   double? Total_dollor;
   int? Total_shiling_somali;
+  void Function()? onTap;
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onTap: onTap,
       leading: Container(
         width: 70,
         height: 90,
