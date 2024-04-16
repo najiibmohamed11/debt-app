@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:debt_manager/pages/home.dart';
+import 'package:debt_manager/pages/items.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
-void main() async {
+Future<void> main() async {
   WidgetsFlutterBinding
       .ensureInitialized(); // Ensure initializations occur before runApp
 
@@ -26,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const Home(),
+      home: Home(),
       theme: ThemeData(
         // Optional: Define a theme for the application
         primarySwatch: Colors.blue,

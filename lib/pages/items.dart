@@ -1,6 +1,9 @@
+import 'dart:math';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:hive_flutter/hive_flutter.dart';
 
 class ItemsPage extends StatefulWidget {
   ItemsPage({super.key, required this.debetorname});
@@ -12,125 +15,144 @@ class ItemsPage extends StatefulWidget {
 
 enum Options { SOS, $ }
 
+final itemsBox = Hive.box("itemsBox");
+
 class _ItemsPageState extends State<ItemsPage> {
   String? itemname;
-  Options? _selectedOption = Options.SOS; // Default selection
+  String? itempriceindollar;
+  String? itempriceinsos = "";
+  String? _selectedOption = "sos";
 
-  Future<void> oppendilogbox() => showDialog(
-      context: context,
-      builder: (context) => Dialog(
-            child: Container(
-              width:
-                  MediaQuery.of(context).size.width * 0.95, // Adjust width here
-              constraints: BoxConstraints(
-                minHeight: 200.0, // Minimum height
-                maxHeight:
-                    MediaQuery.of(context).size.height * 0.7, // Maximum height
-              ),
-              child: AlertDialog(
-                title: Text("Add New item"),
-                content: Column(
-                  children: [
-                    TextField(
-                      onChanged: (value) {
-                        print("Changing value to: $value");
+  List<dynamic> items = [];
 
-                        setState(() {
-                          itemname = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Name",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: InputBorder.none,
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  void addnewitem() {
+    int newKey = 1;
+    if (itemsBox.isNotEmpty) {
+      final lastKey = itemsBox.keys.cast<int>().reduce(max);
+      newKey = lastKey + 1;
+    }
+    itemsBox.put(newKey, [
+      widget.debetorname,
+      itemname,
+      itempriceindollar ?? "\$",
+      itempriceinsos ?? "sos",
+    ]);
+  }
+
+  void delete(int index) {
+    setState(() {
+      itemsBox.deleteAt(index);
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    items.clear();
+    itemsBox.toMap().forEach((key, value) {
+
+      if (value[0] == widget.debetorname) {
+        items.add({"key": key, "value": value});
+      }
+
+      // You can process the value further here
+    });
+
+    Future<void> oppendilogbox() => showDialog(
+        context: context,
+        builder: (context) => Dialog(
+              child: Container(
+                width: MediaQuery.of(context).size.width *
+                    0.90, // Adjust width here
+                constraints: BoxConstraints(
+                  minHeight: 230.0, // Minimum height
+                  maxHeight: MediaQuery.of(context).size.height *
+                      0.7, // Maximum height
+                ),
+                child: AlertDialog(
+                  title: Text("Add New item"),
+                  content: ListView(
+                    children: [
+                      TextField(
+                        onChanged: (value) {
+                          print("Changing value to: $value");
+
+                          setState(() {
+                            itemname = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: "Name",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: InputBorder.none,
+                        ),
                       ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    _selectedOption == Options.SOS
-                        ? TextField(
-                            onChanged: (value) {
-                              print("Changing value to: $value");
-                              setState(() {});
-                            },
-                            decoration: InputDecoration(
-                              hintText: "price in dollar \$\$\$",
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: InputBorder.none,
-                            ),
-                          )
-                        : SizedBox.shrink(),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    _selectedOption == Options.$
-                        ? TextField(
-                            onChanged: (value) {
-                              setState(() {});
-                            },
-                            decoration: InputDecoration(
-                              hintText: "price in shiling somali sos",
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: InputBorder.none,
-                            ),
-                          )
-                        : SizedBox.shrink(),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
-                      children: [
-                        Text("SOS"),
-                        Radio<Options>(
-                          value: Options.SOS,
-                          groupValue: _selectedOption,
-                          onChanged: (Options? value) {
-                            print("Changing option to: $value");
-                            setState(() {
-                              _selectedOption = value;
-                            });
-                            print("Current option: $_selectedOption");
-                          },
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextField(
+                        onChanged: (value) {
+                          print("Changing value to: $value");
+                          setState(() {
+                            itempriceinsos = " ";
+                            itempriceindollar = value;
+                          });
+                        },
+                        keyboardType: TextInputType.phone,
+                        decoration: InputDecoration(
+                          hintText: "price in dollar \$\$\$",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: InputBorder.none,
                         ),
-                        Text("\$"),
-                        Radio<Options>(
-                          value: Options.$,
-                          groupValue: _selectedOption,
-                          onChanged: (Options? value) {
-                            print("Changing option to: $value");
-                            setState(() {
-                              _selectedOption = value;
-                            });
-                            print("Current option: $_selectedOption");
-                          },
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                      TextField(
+                        keyboardType: TextInputType.phone,
+                        onChanged: (value) {
+                          setState(() {
+                            itempriceindollar = "";
+
+                            itempriceinsos = value;
+                          });
+                        },
+                        decoration: InputDecoration(
+                          hintText: "price in shiling somali sos",
+                          filled: true,
+                          fillColor: Colors.white,
+                          border: InputBorder.none,
                         ),
-                      ],
+                      ),
+                      SizedBox(
+                        height: 20.0,
+                      ),
+                    ],
+                  ),
+                  actions: [
+                    MaterialButton(
+                      onPressed: () {
+                        setState(() {});
+                        addnewitem();
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Add",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      color: Colors.green,
                     )
                   ],
                 ),
-                actions: [
-                  MaterialButton(
-                    onPressed: () {
-                      setState(() {});
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Add",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    color: Colors.green,
-                  )
-                ],
               ),
-            ),
-          ));
-  @override
-  Widget build(BuildContext context) {
+            ));
+
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,
@@ -201,119 +223,126 @@ class _ItemsPageState extends State<ItemsPage> {
                 ],
               ),
             ),
-            Container(
-              margin: EdgeInsets.symmetric(vertical: 20.0),
-              child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 13.0),
-                child: Column(
-                  children: [
-                    Padding(
-                      padding:
-                          const EdgeInsets.only(right: 100.0, bottom: 10.0),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 12),
-                          Expanded(
-                            // This will allow the first text to expand
-                            flex:
-                                2, // You can adjust flex to control space allocation
-                            child: Text(
-                              "abuwalad",
-                              overflow: TextOverflow
-                                  .ellipsis, // Prevents text from breaking layout
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          Expanded(
-                            // This will keep this space even if there's no text
-                            flex: 1,
-                            child: Text(
-                              "dollar",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          Expanded(
-                            // This will allow the number text to expand
-                            flex: 1,
-                            child: Text(
-                              "sos",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                        ],
-                      ),
+            Padding(
+              padding:
+                  const EdgeInsets.only(right: 100.0, top: 30.0, left: 10.0),
+              child: Row(
+                children: [
+                  SizedBox(width: 12),
+                  Expanded(
+                    // This will allow the first text to expand
+                    flex: 1, // You can adjust flex to control space allocation
+                    child: Text(
+                      "Item Name",
+                      overflow: TextOverflow
+                          .ellipsis, // Prevents text from breaking layout
+                      style: TextStyle(
+                          fontSize: 17.0, fontWeight: FontWeight.w400),
                     ),
-                    DashedLine(
-                      color: Colors.grey,
+                  ),
+                  Expanded(
+                    // This will keep this space even if there's no text
+                    flex: 1,
+                    child: Text(
+                      "dollar",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 17.0, fontWeight: FontWeight.w400),
                     ),
-                    Container(
-                      margin: EdgeInsets.symmetric(vertical: 10.0),
-                      decoration: BoxDecoration(
-                          color: Colors.grey,
-                          borderRadius: BorderRadius.circular(12)),
-                      child: Row(
-                        children: [
-                          SizedBox(width: 12),
-                          Expanded(
-                            // This will allow the first text to expand
-                            flex:
-                                2, // You can adjust flex to control space allocation
-                            child: Text(
-                              "abuwalad",
-                              overflow: TextOverflow
-                                  .ellipsis, // Prevents text from breaking layout
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          Expanded(
-                            // This will keep this space even if there's no text
-                            flex: 1,
-                            child: Text(
-                              "",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          Expanded(
-                            // This will allow the number text to expand
-                            flex: 1,
-                            child: Text(
-                              "100k",
-                              textAlign: TextAlign.center,
-                              style: TextStyle(
-                                  fontSize: 17.0, fontWeight: FontWeight.w400),
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.cancel_rounded,
-                              color: Colors.red,
-                            ),
-                          ),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              Icons.edit,
-                              color: Colors.green,
-                            ),
-                          ),
-                        ],
-                      ),
-                    )
-                  ],
-                ),
+                  ),
+                  Expanded(
+                    // This will allow the number text to expand
+                    flex: 1,
+                    child: Text(
+                      "sos",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 17.0, fontWeight: FontWeight.w400),
+                    ),
+                  ),
+                ],
               ),
-            )
+            ),
+            DashedLine(
+              color: Colors.grey,
+            ),
+            items.isEmpty
+                ? SizedBox.shrink()
+                : Expanded(
+                    child: ListView.builder(
+                    itemCount: items.length,
+                    itemBuilder: (context, index) => Items(
+                      itemname: items[index]["value"][1],
+                      priceindollar: items[index]["value"][2],
+                      priceinsos: items[index]["value"][3],
+                      onPressed: () => delete(index),
+                    ),
+                  ))
           ],
         ),
+      ),
+    );
+  }
+}
+
+class Items extends StatelessWidget {
+  Items({
+    super.key,
+    required this.itemname,
+    required this.priceindollar,
+    required this.priceinsos,
+    required this.onPressed,
+  });
+  final String itemname;
+  final String priceindollar;
+  final String priceinsos;
+  void Function()? onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      height: 50.0,
+      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+      padding: EdgeInsets.symmetric(horizontal: 12.0),
+      decoration: BoxDecoration(
+        color: Colors.grey,
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment
+            .spaceBetween, // Aligns children across the main axis
+        children: [
+          Expanded(
+            flex: 2,
+            child: Text(
+              itemname,
+              overflow: TextOverflow.ellipsis,
+              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              priceindollar,
+              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
+            ),
+          ),
+          Expanded(
+            flex: 1,
+            child: Text(
+              priceinsos,
+              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
+            ),
+          ),
+          IconButton(
+            onPressed: onPressed,
+            icon: Icon(Icons.cancel_rounded, color: Colors.red),
+          ),
+          IconButton(
+            onPressed: () {},
+            icon: Icon(Icons.edit, color: Colors.green),
+          ),
+        ],
       ),
     );
   }
