@@ -6,9 +6,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
+import 'package:auto_size_text/auto_size_text.dart';
+
+GlobalKey<_HomeState> homeStateKey = GlobalKey();
 
 class Home extends StatefulWidget {
-  const Home({super.key});
+  const Home({Key? key})
+      : super(key: key); // Ensure key is handled properly here
 
   @override
   State<Home> createState() => _HomeState();
@@ -16,14 +20,18 @@ class Home extends StatefulWidget {
 
 String? nameofthedebter;
 String selectedCategory = "female";
+double? total_amount_off_dollar = 0.0;
+double? total_amount_off_sos = 0.0;
 
 final debtorsBox = Hive.box("debtorsBox");
 
 Future<void> addNewDebtor(String newDebtor, String selectedCategory) async {
   var debtorsBox = Hive.box("debtorsBox");
+  final itemsBox = Hive.box("itemsBox");
+
   int newKey =
       debtorsBox.isNotEmpty ? debtorsBox.keys.cast<int>().reduce(max) + 1 : 1;
-  await debtorsBox.put(newKey, [newDebtor, selectedCategory, "1", "10"]);
+  await debtorsBox.put(newKey, [newDebtor, selectedCategory, "0.0", "0.0"]);
 }
 
 class _HomeState extends State<Home> {
@@ -34,14 +42,46 @@ class _HomeState extends State<Home> {
     super.initState();
   }
 
+  void totalamounts() {
+    double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
+    double tempTotalDollar =
+        0.0; // Temporary variable to accumulate Dollar total.
+        
+
+    itemsBox.toMap().forEach((key, value) {
+      try {
+        double currentItemPriceSos = double.tryParse(value[3]) ?? 0.0;
+        double currentItemPriceDollar = double.tryParse(value[2]) ?? 0.0;
+        tempTotalSos += currentItemPriceSos; // Accumulate the SOS total.
+        tempTotalDollar +=
+            currentItemPriceDollar; // Accumulate the Dollar total.
+        print(itemsBox.length);
+      } catch (e) {
+        print('Error parsing string to double: $e');
+      }
+    });
+    setState(() {
+      total_amount_off_sos = tempTotalSos;
+      total_amount_off_dollar = tempTotalDollar;
+    });
+    print(tempTotalSos);
+    print(tempTotalDollar);
+  }
+
   @override
   void dispose() {
     super.dispose();
-    Hive.box('debtorsBox').close();
+  }
+
+  void updateUI() {
+    setState(() {
+      // This will force a rebuild of the Home widget
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    totalamounts();
     final List<String> categories = ['male', 'female']; // Examp
 
     Future<void> opendilogbox() => showDialog(
@@ -162,15 +202,15 @@ class _HomeState extends State<Home> {
                   Total_card(
                     imagepth: 'images/dollar.png',
                     titile: "total dollar",
-                    total_price: 45.0,
+                    total_price: "\$$total_amount_off_dollar",
                   ),
                   SizedBox(
                     width: 10.0,
                   ),
                   Total_card(
-                    imagepth: 'images/dollar.png',
-                    titile: "total dollar",
-                    total_price: 45.0,
+                    imagepth: 'images/sso.png',
+                    titile: "total shilling somali",
+                    total_price: "$total_amount_off_sos",
                   ),
                 ],
               ),
@@ -240,6 +280,7 @@ class _HomeState extends State<Home> {
                                 MaterialPageRoute(
                                     builder: (context) => ItemsPage(
                                           debetorname: nameOfDebtor,
+                                          index: index,
                                         )),
                               );
                             },
@@ -285,11 +326,15 @@ class DebtorsCard extends StatelessWidget {
             borderRadius: BorderRadius.circular(12.0)),
         child: Image.asset(imagepath!),
       ),
-      title: Text(
+      title: AutoSizeText(
         titile!,
         style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
+        maxLines: 1, // Ensures the text does not wrap
+        minFontSize: 10, // Set the minimum font size you want to allow
+        overflow: TextOverflow
+            .ellipsis, // Adds an ellipsis at the end if the text is still too long
       ),
-      // subtitle: Text(mounth!),
+      subtitle: Text("0612544158"),
       trailing: Column(
         children: [
           Text(
@@ -317,7 +362,7 @@ class Total_card extends StatelessWidget {
 
   final String imagepth;
   final String titile;
-  final double total_price;
+  final String total_price;
 
   @override
   Widget build(BuildContext context) {
@@ -344,12 +389,16 @@ class Total_card extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
+                    AutoSizeText(
                       titile,
+                      maxLines: 1, // Ensures the text does not wrap
+                      minFontSize:
+                          10, // Set the minimum font size you want to allow
+                      overflow: TextOverflow.ellipsis,
                       style: TextStyle(letterSpacing: 0.5, fontSize: 15.0),
                     ),
                     Text(
-                      '\$${total_price.toString()}',
+                      total_price,
                       textAlign: TextAlign.center,
                       style: TextStyle(
                           fontSize: 24.0, fontWeight: FontWeight.bold),

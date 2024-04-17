@@ -29,7 +29,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: Home(),
+      home:  Home(key: homeStateKey),
       theme: ThemeData(
         // Optional: Define a theme for the application
         primarySwatch: Colors.blue,

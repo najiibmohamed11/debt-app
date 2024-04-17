@@ -1,19 +1,25 @@
+import 'dart:ffi';
 import 'dart:math';
 
+import 'package:debt_manager/pages/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
+import 'package:auto_size_text/auto_size_text.dart';
 
 class ItemsPage extends StatefulWidget {
-  ItemsPage({super.key, required this.debetorname});
+  ItemsPage({
+    super.key,
+    required this.debetorname,
+    required this.index,
+  });
   String? debetorname;
+  int index;
 
   @override
   State<ItemsPage> createState() => _ItemsPageState();
 }
-
-enum Options { SOS, $ }
 
 final itemsBox = Hive.box("itemsBox");
 
@@ -21,13 +27,30 @@ class _ItemsPageState extends State<ItemsPage> {
   String? itemname;
   String? itempriceindollar;
   String? itempriceinsos = "";
-  String? _selectedOption = "sos";
+  double? total_amount_off_dollar = 0.0;
+  double? total_amount_off_sos = 0.0;
 
   List<dynamic> items = [];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  void updateItemInHiveBox(
+      int key, String newAmountForDollar, String newAmountForSos) {
+    var debtorsBox = Hive.box("debtorsBox");
+    List<dynamic> currentData =
+        debtorsBox.getAt(key); // Retrieve the current data
+
+    // Update specific fields
+    if (currentData != null && currentData.length >= 4) {
+      currentData[2] = newAmountForDollar; // Update the amount in dollars
+      currentData[3] = newAmountForSos; // Update the amount in Somali Shillings
+    }
+
+    // Put the updated array back into the box with the same key
+    debtorsBox.putAt(key, currentData);
   }
 
   void addnewitem() {
@@ -39,8 +62,8 @@ class _ItemsPageState extends State<ItemsPage> {
     itemsBox.put(newKey, [
       widget.debetorname,
       itemname,
-      itempriceindollar ?? "\$",
-      itempriceinsos ?? "sos",
+      itempriceindollar,
+      itempriceinsos,
     ]);
   }
 
@@ -53,13 +76,31 @@ class _ItemsPageState extends State<ItemsPage> {
   @override
   Widget build(BuildContext context) {
     items.clear();
-    itemsBox.toMap().forEach((key, value) {
+    double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
+    double tempTotalDollar =
+        0.0; // Temporary variable to accumulate Dollar total.
 
+    itemsBox.toMap().forEach((key, value) {
       if (value[0] == widget.debetorname) {
         items.add({"key": key, "value": value});
-      }
 
-      // You can process the value further here
+        try {
+          double currentItemPriceSos = double.tryParse(value[3]) ?? 0.0;
+          double currentItemPriceDollar = double.tryParse(value[2]) ?? 0.0;
+          tempTotalSos += currentItemPriceSos; // Accumulate the SOS total.
+          tempTotalDollar +=
+              currentItemPriceDollar; // Accumulate the Dollar total.
+        } catch (e) {
+          print('Error parsing string to double: $e');
+        }
+      }
+    });
+
+    setState(() {
+      total_amount_off_sos =
+          tempTotalSos; // Set the accumulated SOS total after the loop.
+      total_amount_off_dollar =
+          tempTotalDollar; // Set the accumulated Dollar total after the loop.
     });
 
     Future<void> oppendilogbox() => showDialog(
@@ -79,8 +120,6 @@ class _ItemsPageState extends State<ItemsPage> {
                     children: [
                       TextField(
                         onChanged: (value) {
-                          print("Changing value to: $value");
-
                           setState(() {
                             itemname = value;
                           });
@@ -97,7 +136,6 @@ class _ItemsPageState extends State<ItemsPage> {
                       ),
                       TextField(
                         onChanged: (value) {
-                          print("Changing value to: $value");
                           setState(() {
                             itempriceinsos = " ";
                             itempriceindollar = value;
@@ -138,8 +176,14 @@ class _ItemsPageState extends State<ItemsPage> {
                   actions: [
                     MaterialButton(
                       onPressed: () {
-                        setState(() {});
+                        setState(() {
+                          updateItemInHiveBox(
+                              widget.index,
+                              total_amount_off_dollar.toString(),
+                              total_amount_off_sos.toString());
+                        });
                         addnewitem();
+
                         Navigator.pop(context);
                       },
                       child: Text(
@@ -180,18 +224,28 @@ class _ItemsPageState extends State<ItemsPage> {
                     children: [
                       IconButton(
                         onPressed: () {
+                          setState(() {
+                            updateItemInHiveBox(
+                                widget.index,
+                                total_amount_off_dollar.toString(),
+                                total_amount_off_sos.toString());
+                          });
+                          homeStateKey.currentState?.updateUI();
+
                           Navigator.pop(context);
                         },
                         icon: Icon(Icons.arrow_back_ios),
                       ),
-                      SizedBox(
-                        width: 120.0,
-                      ),
-                      Text(
+                      AutoSizeText(
                         widget.debetorname!,
-                        style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
-                      )
+                        textAlign: TextAlign.center,
+                        style: TextStyle(fontSize: 18.0),
+                        maxLines: 1, // Ensures the text does not wrap
+                        minFontSize:
+                            10, // Set the minimum font size you want to allow
+                        overflow: TextOverflow
+                            .ellipsis, // Adds an ellipsis at the end if the text is still too long
+                      ),
                     ],
                   ),
                   SizedBox(
@@ -202,13 +256,13 @@ class _ItemsPageState extends State<ItemsPage> {
                       Text(
                         "items",
                         style: TextStyle(
-                            fontSize: 15.0, fontWeight: FontWeight.w300),
+                            fontSize: 18.0, fontWeight: FontWeight.w300),
                       ),
                       Spacer(),
                       Text(
-                        "5",
+                        items.length.toString(),
                         style: TextStyle(
-                            fontSize: 20.0, fontWeight: FontWeight.bold),
+                            fontSize: 18.0, fontWeight: FontWeight.bold),
                       )
                     ],
                   ),
@@ -218,8 +272,14 @@ class _ItemsPageState extends State<ItemsPage> {
                   DashedLine(
                     color: Colors.grey,
                   ),
-                  Total(),
-                  Total(),
+                  Total(
+                    text: "total dollar",
+                    total: "\$$total_amount_off_dollar",
+                  ),
+                  Total(
+                    text: "total shiling somali",
+                    total: "$total_amount_off_sos",
+                  ),
                 ],
               ),
             ),
@@ -322,10 +382,13 @@ class Items extends StatelessWidget {
           ),
           Expanded(
             flex: 1,
-            child: Text(
-              priceindollar,
-              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
-            ),
+            child: priceindollar == ""
+                ? Text("")
+                : Text(
+                    "\$$priceindollar",
+                    style:
+                        TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
+                  ),
           ),
           Expanded(
             flex: 1,
@@ -349,21 +412,25 @@ class Items extends StatelessWidget {
 }
 
 class Total extends StatelessWidget {
-  const Total({
+  Total({
     super.key,
+    required this.text,
+    required this.total,
   });
+  String text;
+  String total;
 
   @override
   Widget build(BuildContext context) {
     return Row(
       children: [
         Text(
-          "total dollar",
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.w600),
+          text,
+          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
         ),
         Spacer(),
         Text(
-          "\$10",
+          total,
           style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
         )
       ],
