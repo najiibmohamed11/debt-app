@@ -8,6 +8,8 @@ import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 
+enum Options { SOS, $ }
+
 class ItemsPage extends StatefulWidget {
   ItemsPage({
     super.key,
@@ -29,12 +31,24 @@ class _ItemsPageState extends State<ItemsPage> {
   String? itempriceinsos = "";
   double? total_amount_off_dollar = 0.0;
   double? total_amount_off_sos = 0.0;
+  Options? _selectedOption = Options.SOS; // Default selection
 
   List<dynamic> items = [];
 
   @override
   void initState() {
     super.initState();
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    // setState(() {
+    //   updateItemInHiveBox(widget.index, total_amount_off_dollar.toString(),
+    //       total_amount_off_sos.toString());
+    // });
+    // homeStateKey.currentState?.updateUI();
+    super.dispose();
   }
 
   void updateItemInHiveBox(
@@ -44,7 +58,7 @@ class _ItemsPageState extends State<ItemsPage> {
         debtorsBox.getAt(key); // Retrieve the current data
 
     // Update specific fields
-    if (currentData != null && currentData.length >= 4) {
+    if (currentData.length >= 4) {
       currentData[2] = newAmountForDollar; // Update the amount in dollars
       currentData[3] = newAmountForSos; // Update the amount in Somali Shillings
     }
@@ -67,14 +81,37 @@ class _ItemsPageState extends State<ItemsPage> {
     ]);
   }
 
-  void delete(int index) {
-    setState(() {
-      itemsBox.deleteAt(index);
-    });
+  void delete(
+      int key, String itemname, String priceDolar, String priceSos) async {
+    final bool? confirmDelete = await showDialog(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text('Confirm Delete'),
+          content: Text(
+              'Are you sure you want to delete $itemname with price of $priceDolar $priceSos?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              child: Text('Yes'),
+            ),
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: Text('No'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmDelete == true) {
+      await itemsBox.delete(key); // Delete the item from Hive box using the key
+      loadItems(); // Reload the items from Hive to update the UI
+      setState(() {}); // Update the UI to reflect changes
+    }
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void loadItems() {
     items.clear();
     double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
     double tempTotalDollar =
@@ -102,6 +139,11 @@ class _ItemsPageState extends State<ItemsPage> {
       total_amount_off_dollar =
           tempTotalDollar; // Set the accumulated Dollar total after the loop.
     });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    loadItems();
 
     Future<void> oppendilogbox() => showDialog(
         context: context,
@@ -114,86 +156,117 @@ class _ItemsPageState extends State<ItemsPage> {
                   maxHeight: MediaQuery.of(context).size.height *
                       0.7, // Maximum height
                 ),
-                child: AlertDialog(
-                  title: Text("Add New item"),
-                  content: ListView(
-                    children: [
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            itemname = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: "Name",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      TextField(
-                        onChanged: (value) {
-                          setState(() {
-                            itempriceinsos = " ";
-                            itempriceindollar = value;
-                          });
-                        },
-                        keyboardType: TextInputType.phone,
-                        decoration: InputDecoration(
-                          hintText: "price in dollar \$\$\$",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                      TextField(
-                        keyboardType: TextInputType.phone,
-                        onChanged: (value) {
-                          setState(() {
-                            itempriceindollar = "";
+                child: StatefulBuilder(
+                    builder: (context, setState) => AlertDialog(
+                          title: Text("Add New item"),
+                          content: ListView(
+                            children: [
+                              TextField(
+                                onChanged: (value) {
+                                  setState(() {
+                                    itemname = value;
+                                  });
+                                },
+                                decoration: InputDecoration(
+                                  hintText: "Name",
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: InputBorder.none,
+                                ),
+                              ),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              _selectedOption == Options.$
+                                  ? TextField(
+                                      onChanged: (value) {
+                                        setState(() {
+                                          itempriceinsos = " ";
+                                          itempriceindollar = value;
+                                        });
+                                      },
+                                      keyboardType: TextInputType.phone,
+                                      decoration: InputDecoration(
+                                        hintText: "price in dollar \$\$\$",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: InputBorder.none,
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              _selectedOption == Options.SOS
+                                  ? TextField(
+                                      keyboardType: TextInputType.number,
+                                      onChanged: (value) {
+                                        setState(() {
+                                          itempriceindollar = "";
 
-                            itempriceinsos = value;
-                          });
-                        },
-                        decoration: InputDecoration(
-                          hintText: "price in shiling somali sos",
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: InputBorder.none,
-                        ),
-                      ),
-                      SizedBox(
-                        height: 20.0,
-                      ),
-                    ],
-                  ),
-                  actions: [
-                    MaterialButton(
-                      onPressed: () {
-                        setState(() {
-                          updateItemInHiveBox(
-                              widget.index,
-                              total_amount_off_dollar.toString(),
-                              total_amount_off_sos.toString());
-                        });
-                        addnewitem();
+                                          itempriceinsos = value;
+                                        });
+                                      },
+                                      decoration: InputDecoration(
+                                        hintText: "price in shiling somali sos",
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: InputBorder.none,
+                                      ),
+                                    )
+                                  : SizedBox.shrink(),
+                              SizedBox(
+                                height: 20.0,
+                              ),
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceAround,
+                                children: [
+                                  Text("SOS"),
+                                  Radio<Options>(
+                                    value: Options.SOS,
+                                    groupValue: _selectedOption,
+                                    onChanged: (Options? value) {
+                                      setState(() {
+                                        _selectedOption = value;
+                                      });
+                                    },
+                                  ),
+                                  Text("\$"),
+                                  Radio<Options>(
+                                    value: Options.$,
+                                    groupValue: _selectedOption,
+                                    onChanged: (Options? value) {
+                                      setState(() {
+                                        _selectedOption = value;
+                                      });
+                                    },
+                                  ),
+                                ],
+                              )
+                            ],
+                          ),
+                          actions: [
+                            MaterialButton(
+                              onPressed: () {
+                                this.setState(() {
+                                  updateItemInHiveBox(
+                                      widget.index,
+                                      total_amount_off_dollar.toString(),
+                                      total_amount_off_sos.toString());
+                                  addnewitem();
+                                });
 
-                        Navigator.pop(context);
-                      },
-                      child: Text(
-                        "Add",
-                        style: TextStyle(color: Colors.white),
-                      ),
-                      color: Colors.green,
-                    )
-                  ],
-                ),
+                                Navigator.pop(context);
+                              },
+                              child: Text(
+                                "Add",
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              color: Colors.green,
+                            )
+                          ],
+                        )),
               ),
             ));
 
@@ -330,14 +403,27 @@ class _ItemsPageState extends State<ItemsPage> {
                 ? SizedBox.shrink()
                 : Expanded(
                     child: ListView.builder(
-                    itemCount: items.length,
-                    itemBuilder: (context, index) => Items(
-                      itemname: items[index]["value"][1],
-                      priceindollar: items[index]["value"][2],
-                      priceinsos: items[index]["value"][3],
-                      onPressed: () => delete(index),
-                    ),
-                  ))
+                        itemCount: items.length,
+                        // In your ListView.builder
+                        itemBuilder: (context, index) {
+                          final item = items[index];
+                          return Items(
+                            itemname: item["value"][1],
+                            priceindollar: item["value"][2],
+                            priceinsos: item["value"][3],
+                            onPressed: () {
+                              delete(
+                                  item["key"],
+                                  item["value"][1],
+                                  item["value"][2] == ""
+                                      ? ""
+                                      : '\$${item["value"][2]}',
+                                  item["value"][3] == " "
+                                      ? ""
+                                      : '${item["value"][3]}K shilling somali'); // Use the actual key
+                            },
+                          );
+                        }))
           ],
         ),
       ),
