@@ -1,6 +1,8 @@
 import 'dart:ffi';
 import 'dart:math';
 
+import 'package:debt_manager/components/debtorcard.dart';
+import 'package:debt_manager/components/totalcard.dart';
 import 'package:debt_manager/pages/items.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -46,7 +48,6 @@ class _HomeState extends State<Home> {
     double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
     double tempTotalDollar =
         0.0; // Temporary variable to accumulate Dollar total.
-        
 
     itemsBox.toMap().forEach((key, value) {
       try {
@@ -55,7 +56,6 @@ class _HomeState extends State<Home> {
         tempTotalSos += currentItemPriceSos; // Accumulate the SOS total.
         tempTotalDollar +=
             currentItemPriceDollar; // Accumulate the Dollar total.
-        print(itemsBox.length);
       } catch (e) {
         print('Error parsing string to double: $e');
       }
@@ -64,8 +64,7 @@ class _HomeState extends State<Home> {
       total_amount_off_sos = tempTotalSos;
       total_amount_off_dollar = tempTotalDollar;
     });
-    print(tempTotalSos);
-    print(tempTotalDollar);
+
   }
 
   @override
@@ -274,6 +273,7 @@ class _HomeState extends State<Home> {
                             titile: nameOfDebtor,
                             Total_dollor: totalDollar,
                             Total_shiling_somali: totalSomaliShilling,
+                            index: index,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -294,120 +294,6 @@ class _HomeState extends State<Home> {
           ),
         ),
       ),
-    );
-  }
-}
-
-class DebtorsCard extends StatelessWidget {
-  DebtorsCard({
-    required this.imagepath,
-    required this.titile,
-    // required this.mounth,
-    required this.Total_dollor,
-    required this.Total_shiling_somali,
-    required this.onTap,
-  });
-  String? imagepath;
-  String? titile;
-  // String? mounth;
-  String? Total_dollor;
-  String? Total_shiling_somali;
-  void Function()? onTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return ListTile(
-      onTap: onTap,
-      leading: Container(
-        width: 70,
-        height: 90,
-        decoration: BoxDecoration(
-            color: Color(0xffF1EBE2),
-            borderRadius: BorderRadius.circular(12.0)),
-        child: Image.asset(imagepath!),
-      ),
-      title: AutoSizeText(
-        titile!,
-        style: TextStyle(fontSize: 24.0, fontWeight: FontWeight.bold),
-        maxLines: 1, // Ensures the text does not wrap
-        minFontSize: 10, // Set the minimum font size you want to allow
-        overflow: TextOverflow
-            .ellipsis, // Adds an ellipsis at the end if the text is still too long
-      ),
-      subtitle: Text("0612544158"),
-      trailing: Column(
-        children: [
-          Text(
-            "\$${Total_dollor}",
-            style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.bold),
-          ),
-          Text(
-            "$Total_shiling_somali k",
-            style: TextStyle(
-              fontSize: 15.0,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Total_card extends StatelessWidget {
-  Total_card(
-      {super.key,
-      required this.titile,
-      required this.imagepth,
-      required this.total_price});
-
-  final String imagepth;
-  final String titile;
-  final String total_price;
-
-  @override
-  Widget build(BuildContext context) {
-    double screenWidth = MediaQuery.of(context).size.width;
-
-    return Flexible(
-      child: Container(
-          width: screenWidth * 0.45, // Dynamically size based on screen width
-          height: 100.0,
-          decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(
-                color: Colors.black,
-              )),
-          child: Row(
-            children: [
-              Image.asset(
-                imagepth,
-                width: 50,
-                height: 50.0,
-              ),
-              Expanded(
-                // Ensure the text does not overflow
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    AutoSizeText(
-                      titile,
-                      maxLines: 1, // Ensures the text does not wrap
-                      minFontSize:
-                          10, // Set the minimum font size you want to allow
-                      overflow: TextOverflow.ellipsis,
-                      style: TextStyle(letterSpacing: 0.5, fontSize: 15.0),
-                    ),
-                    Text(
-                      total_price,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 24.0, fontWeight: FontWeight.bold),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          )),
     );
   }
 }

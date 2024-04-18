@@ -1,6 +1,9 @@
 import 'dart:ffi';
 import 'dart:math';
 
+import 'package:debt_manager/components/dashlines.dart';
+import 'package:debt_manager/components/itemscard.dart';
+import 'package:debt_manager/components/totall.dart';
 import 'package:debt_manager/pages/home.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -407,7 +410,7 @@ class _ItemsPageState extends State<ItemsPage> {
                         // In your ListView.builder
                         itemBuilder: (context, index) {
                           final item = items[index];
-                          return Items(
+                          return ItemsCard(
                             itemname: item["value"][1],
                             priceindollar: item["value"][2],
                             priceinsos: item["value"][3],
@@ -427,135 +430,6 @@ class _ItemsPageState extends State<ItemsPage> {
           ],
         ),
       ),
-    );
-  }
-}
-
-class Items extends StatelessWidget {
-  Items({
-    super.key,
-    required this.itemname,
-    required this.priceindollar,
-    required this.priceinsos,
-    required this.onPressed,
-  });
-  final String itemname;
-  final String priceindollar;
-  final String priceinsos;
-  void Function()? onPressed;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 50.0,
-      margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-      padding: EdgeInsets.symmetric(horizontal: 12.0),
-      decoration: BoxDecoration(
-        color: Colors.grey,
-        borderRadius: BorderRadius.circular(12),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment
-            .spaceBetween, // Aligns children across the main axis
-        children: [
-          Expanded(
-            flex: 2,
-            child: Text(
-              itemname,
-              overflow: TextOverflow.ellipsis,
-              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
-            ),
-          ),
-          Expanded(
-            flex: 1,
-            child: priceindollar == ""
-                ? Text("")
-                : Text(
-                    "\$$priceindollar",
-                    style:
-                        TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
-                  ),
-          ),
-          Expanded(
-            flex: 1,
-            child: Text(
-              priceinsos,
-              style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
-            ),
-          ),
-          IconButton(
-            onPressed: onPressed,
-            icon: Icon(Icons.cancel_rounded, color: Colors.red),
-          ),
-          IconButton(
-            onPressed: () {},
-            icon: Icon(Icons.edit, color: Colors.green),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class Total extends StatelessWidget {
-  Total({
-    super.key,
-    required this.text,
-    required this.total,
-  });
-  String text;
-  String total;
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      children: [
-        Text(
-          text,
-          style: TextStyle(fontSize: 18.0, fontWeight: FontWeight.w300),
-        ),
-        Spacer(),
-        Text(
-          total,
-          style: TextStyle(fontSize: 20.0, fontWeight: FontWeight.bold),
-        )
-      ],
-    );
-  }
-}
-
-class DashedLine extends StatelessWidget {
-  final double height;
-  final Color color;
-  final double dashWidth;
-  final double dashSpace;
-
-  const DashedLine({
-    Key? key,
-    this.height = 1,
-    this.color = Colors.grey,
-    this.dashWidth = 10,
-    this.dashSpace = 5,
-  }) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final dashCount =
-            (constraints.maxWidth / (dashWidth + dashSpace)).floor();
-        return Flex(
-          direction: Axis.horizontal,
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: List<Widget>.generate(dashCount, (_) {
-            return Container(
-              width: dashWidth,
-              height: height,
-              color: color,
-            );
-          }),
-        );
-      },
     );
   }
 }
