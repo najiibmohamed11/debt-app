@@ -1,5 +1,5 @@
-
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class ItemsCard extends StatelessWidget {
   ItemsCard({
@@ -8,14 +8,17 @@ class ItemsCard extends StatelessWidget {
     required this.priceindollar,
     required this.priceinsos,
     required this.onPressed,
+    required this.date,
   });
   final String itemname;
   final String priceindollar;
   final String priceinsos;
+  final String date;
   void Function()? onPressed;
 
   @override
   Widget build(BuildContext context) {
+ 
     return Container(
       height: 50.0,
       margin: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
@@ -53,6 +56,7 @@ class ItemsCard extends StatelessWidget {
               style: TextStyle(fontSize: 17.0, fontWeight: FontWeight.w400),
             ),
           ),
+          Text(date!),
           IconButton(
             onPressed: onPressed,
             icon: Icon(Icons.cancel_rounded, color: Colors.red),

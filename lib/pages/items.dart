@@ -10,6 +10,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter_keyboard_visibility/flutter_keyboard_visibility.dart';
+import 'package:intl/intl.dart';
 
 enum Options { SOS, $ }
 
@@ -35,6 +37,7 @@ class _ItemsPageState extends State<ItemsPage> {
   double? total_amount_off_dollar = 0.0;
   double? total_amount_off_sos = 0.0;
   Options? _selectedOption = Options.SOS; // Default selection
+  DateTime now = DateTime.now();
 
   List<dynamic> items = [];
 
@@ -70,7 +73,7 @@ class _ItemsPageState extends State<ItemsPage> {
     debtorsBox.putAt(key, currentData);
   }
 
-  void addnewitem() {
+  void addnewitem(String date) {
     int newKey = 1;
     if (itemsBox.isNotEmpty) {
       final lastKey = itemsBox.keys.cast<int>().reduce(max);
@@ -81,6 +84,7 @@ class _ItemsPageState extends State<ItemsPage> {
       itemname,
       itempriceindollar,
       itempriceinsos,
+      date
     ]);
   }
 
@@ -146,6 +150,8 @@ class _ItemsPageState extends State<ItemsPage> {
 
   @override
   Widget build(BuildContext context) {
+    String formattedDate = DateFormat('d MMM').format(now);
+
     loadItems();
 
     Future<void> oppendilogbox() => showDialog(
@@ -188,7 +194,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                           itempriceindollar = value;
                                         });
                                       },
-                                      keyboardType: TextInputType.phone,
+                                      keyboardType: TextInputType.number,
                                       decoration: InputDecoration(
                                         hintText: "price in dollar \$\$\$",
                                         filled: true,
@@ -257,7 +263,7 @@ class _ItemsPageState extends State<ItemsPage> {
                                       widget.index,
                                       total_amount_off_dollar.toString(),
                                       total_amount_off_sos.toString());
-                                  addnewitem();
+                                  addnewitem(formattedDate);
                                 });
 
                                 Navigator.pop(context);
@@ -396,6 +402,16 @@ class _ItemsPageState extends State<ItemsPage> {
                           fontSize: 17.0, fontWeight: FontWeight.w400),
                     ),
                   ),
+                  Expanded(
+                    // This will allow the number text to expand
+                    flex: 1,
+                    child: Text(
+                      "date",
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          fontSize: 17.0, fontWeight: FontWeight.w400),
+                    ),
+                  ),
                 ],
               ),
             ),
@@ -414,6 +430,7 @@ class _ItemsPageState extends State<ItemsPage> {
                             itemname: item["value"][1],
                             priceindollar: item["value"][2],
                             priceinsos: item["value"][3],
+                            date: item["value"][4],
                             onPressed: () {
                               delete(
                                   item["key"],

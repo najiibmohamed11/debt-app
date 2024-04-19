@@ -38,6 +38,9 @@ dependencies:
   hive: ^2.2.3
   hive_flutter: ^1.1.0
   auto_size_text: ^3.0.0  # Use the latest version available
+  flutter_keyboard_visibility: ^5.0.2
+  intl: ^0.17.0
+
 
 
 dev_dependencies:

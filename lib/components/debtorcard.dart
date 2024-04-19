@@ -8,6 +8,7 @@ class DebtorsCard extends StatefulWidget {
   final String? titile;
   final String? Total_dollor;
   final String? Total_shiling_somali;
+  final String? phoneNumber;
   final int? index;
   final void Function()? onTap;
 
@@ -17,6 +18,7 @@ class DebtorsCard extends StatefulWidget {
     required this.Total_dollor,
     required this.Total_shiling_somali,
     required this.index,
+    required this.phoneNumber,
     required this.onTap,
   });
 
@@ -123,7 +125,9 @@ class _DebtorsCardState extends State<DebtorsCard> {
           minFontSize: 10,
           overflow: TextOverflow.ellipsis,
         ),
-        subtitle: Text("0612544158"),
+        subtitle: widget.phoneNumber!.isEmpty
+            ? Text("061....")
+            : Text(widget.phoneNumber!),
         trailing: Column(
           children: [
             Text(

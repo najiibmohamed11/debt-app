@@ -21,6 +21,7 @@ class Home extends StatefulWidget {
 }
 
 String? nameofthedebter;
+String? pnone;
 String selectedCategory = "female";
 double? total_amount_off_dollar = 0.0;
 double? total_amount_off_sos = 0.0;
@@ -64,7 +65,6 @@ class _HomeState extends State<Home> {
       total_amount_off_sos = tempTotalSos;
       total_amount_off_dollar = tempTotalDollar;
     });
-
   }
 
   @override
@@ -108,6 +108,23 @@ class _HomeState extends State<Home> {
                       },
                       decoration: InputDecoration(
                         hintText: "Name",
+                        filled: true,
+                        fillColor: Colors.white,
+                        border: InputBorder.none,
+                      ),
+                    ),
+                    SizedBox(
+                      height: 20.0,
+                    ),
+                    TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          pnone = value;
+                        });
+                      },
+                      keyboardType: TextInputType.phone,
+                      decoration: InputDecoration(
+                        hintText: "phone number",
                         filled: true,
                         fillColor: Colors.white,
                         border: InputBorder.none,
@@ -274,6 +291,7 @@ class _HomeState extends State<Home> {
                             Total_dollor: totalDollar,
                             Total_shiling_somali: totalSomaliShilling,
                             index: index,
+                            phoneNumber: pnone ?? "61....",
                             onTap: () {
                               Navigator.push(
                                 context,
