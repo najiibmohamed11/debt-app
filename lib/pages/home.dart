@@ -21,10 +21,11 @@ class Home extends StatefulWidget {
 }
 
 String? nameofthedebter;
-String? pnone;
+String? pnone = "61...";
 String selectedCategory = "female";
 double? total_amount_off_dollar = 0.0;
 double? total_amount_off_sos = 0.0;
+String _searchQuery = '';
 
 final debtorsBox = Hive.box("debtorsBox");
 
@@ -34,7 +35,8 @@ Future<void> addNewDebtor(String newDebtor, String selectedCategory) async {
 
   int newKey =
       debtorsBox.isNotEmpty ? debtorsBox.keys.cast<int>().reduce(max) + 1 : 1;
-  await debtorsBox.put(newKey, [newDebtor, selectedCategory, "0.0", "0.0"]);
+  await debtorsBox
+      .put(newKey, [newDebtor, selectedCategory, "0.0", "0.0", pnone]);
 }
 
 class _HomeState extends State<Home> {
@@ -162,6 +164,7 @@ class _HomeState extends State<Home> {
                     onPressed: () {
                       setState(() {
                         addNewDebtor(nameofthedebter!, selectedCategory);
+                        pnone = "61...";
                       });
                       Navigator.pop(context);
                     },
@@ -241,6 +244,11 @@ class _HomeState extends State<Home> {
                   color: Colors.grey,
                 ),
                 child: TextField(
+                  onChanged: (value) {
+                    setState(() {
+                      _searchQuery = value.toLowerCase();
+                    });
+                  },
                   decoration: InputDecoration(
                     hintText: "Search..",
                     suffixIcon: Icon(
@@ -273,12 +281,26 @@ class _HomeState extends State<Home> {
                       child: ListView.separated(
                         itemCount: debtorsBox.length,
                         itemBuilder: (context, index) {
-                          final debtorData = debtorsBox.getAt(index)
-                              as List<dynamic>?; // Cast to avoid type issues
-                          if (debtorData == null || debtorData.length < 4) {
-                            return SizedBox.shrink(); // or some error widget
+                          final debtorData =
+                              debtorsBox.getAt(index) as List<dynamic>?;
+                          if (debtorData == null || debtorData.length < 5) {
+                            return SizedBox
+                                .shrink(); // Handle potential null or incomplete data
                           }
                           String nameOfDebtor = debtorData[0] as String;
+                          String phoneNumber = debtorData[4] as String;
+
+                          // Modify this condition to check both name and phone number
+                          if (_searchQuery.isNotEmpty &&
+                              !nameOfDebtor
+                                  .toLowerCase()
+                                  .contains(_searchQuery) &&
+                              !phoneNumber.contains(_searchQuery)) {
+                            return SizedBox
+                                .shrink(); // This entry does not match the search query
+                          }
+
+                          // Your existing code to display each debtor...
                           String category = debtorData[1] as String;
                           String totalDollar = debtorData[2] as String;
                           String totalSomaliShilling = debtorData[3] as String;
@@ -291,7 +313,7 @@ class _HomeState extends State<Home> {
                             Total_dollor: totalDollar,
                             Total_shiling_somali: totalSomaliShilling,
                             index: index,
-                            phoneNumber: pnone ?? "61....",
+                            phoneNumber: phoneNumber,
                             onTap: () {
                               Navigator.push(
                                 context,
@@ -307,7 +329,7 @@ class _HomeState extends State<Home> {
                         separatorBuilder: (context, index) =>
                             Divider(), // Adds a divider between each item
                       ),
-                    ),
+                    )
             ],
           ),
         ),
