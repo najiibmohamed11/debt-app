@@ -430,6 +430,7 @@ class _ItemsPageState extends State<ItemsPage> {
                             priceindollar: item["value"][2],
                             priceinsos: item["value"][3],
                             date: item["value"][4],
+                            onupdate: (){},
                             onPressed: () {
                               delete(
                                   item["key"],

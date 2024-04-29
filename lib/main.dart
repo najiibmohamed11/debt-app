@@ -2,13 +2,15 @@ import 'dart:async';
 
 import 'package:debt_manager/pages/home.dart';
 import 'package:debt_manager/pages/items.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding
-      .ensureInitialized(); // Ensure initializations occur before runApp
+      .ensureInitialized(); 
+  await Firebase.initializeApp();
 
   try {
     await Hive.initFlutter(); // Initialize Hive for the Flutter environment

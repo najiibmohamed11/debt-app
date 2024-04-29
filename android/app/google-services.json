@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "147205686330",
+    "project_id": "debter-manager-database",
+    "storage_bucket": "debter-manager-database.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:147205686330:android:6e637f0ceda8e5e7972103",
+        "android_client_info": {
+          "package_name": "com.example.debt_manager"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDbHfKGwKL0LGOz18bKtejUEJFAEjlNoAs"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

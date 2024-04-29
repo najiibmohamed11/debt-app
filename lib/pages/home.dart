@@ -1,9 +1,12 @@
+import 'dart:async';
 import 'dart:ffi';
 import 'dart:math';
 
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:debt_manager/components/debtorcard.dart';
 import 'package:debt_manager/components/totalcard.dart';
 import 'package:debt_manager/pages/items.dart';
+import 'package:debt_manager/utility/backups.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -26,7 +29,7 @@ String selectedCategory = "female";
 double? total_amount_off_dollar = 0.0;
 double? total_amount_off_sos = 0.0;
 String _searchQuery = '';
-
+Backups backup = new Backups();
 final debtorsBox = Hive.box("debtorsBox");
 
 Future<void> addNewDebtor(String newDebtor, String selectedCategory) async {
@@ -46,6 +49,8 @@ class _HomeState extends State<Home> {
 
     super.initState();
   }
+
+  //check internet conection
 
   void totalamounts() {
     double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
@@ -83,6 +88,7 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     totalamounts();
+    backup.checkconnection();
     final List<String> categories = ['male', 'female']; // Examp
 
     Future<void> opendilogbox() => showDialog(
@@ -164,6 +170,7 @@ class _HomeState extends State<Home> {
                 actions: [
                   MaterialButton(
                     onPressed: () {
+
                       setState(() {
                         addNewDebtor(nameofthedebter!, selectedCategory);
                         pnone = "61...";

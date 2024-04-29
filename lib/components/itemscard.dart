@@ -8,6 +8,7 @@ class ItemsCard extends StatelessWidget {
     required this.priceindollar,
     required this.priceinsos,
     required this.onPressed,
+    required this.onupdate,
     required this.date,
   });
   final String itemname;
@@ -15,6 +16,7 @@ class ItemsCard extends StatelessWidget {
   final String priceinsos;
   final String date;
   void Function()? onPressed;
+  void Function()? onupdate;
 
   @override
   Widget build(BuildContext context) {
@@ -62,7 +64,7 @@ class ItemsCard extends StatelessWidget {
             icon: Icon(Icons.cancel_rounded, color: Colors.red),
           ),
           IconButton(
-            onPressed: () {},
+            onPressed: onupdate,
             icon: Icon(Icons.edit, color: Colors.green),
           ),
         ],
