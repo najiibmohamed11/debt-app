@@ -48,15 +48,13 @@ class _ItemsPageState extends State<ItemsPage> {
   @override
   void dispose() {
     // TODO: implement dispose
-    // setState(() {
-    //   updateItemInHiveBox(widget.index, total_amount_off_dollar.toString(),
-    //       total_amount_off_sos.toString());
-    // });
+   
+
     // homeStateKey.currentState?.updateUI();
     super.dispose();
   }
 
-  void updateItemInHiveBox(
+  void updatedebterboxdata(
       int key, String newAmountForDollar, String newAmountForSos) {
     var debtorsBox = Hive.box("debtorsBox");
     List<dynamic> currentData =
@@ -85,6 +83,9 @@ class _ItemsPageState extends State<ItemsPage> {
       itempriceinsos,
       date
     ]);
+    updatedebterboxdata(widget.index, total_amount_off_dollar.toString(),
+        total_amount_off_sos.toString());
+    homeStateKey.currentState?.updateUI();
   }
 
   void delete(
@@ -115,6 +116,9 @@ class _ItemsPageState extends State<ItemsPage> {
       loadItems(); // Reload the items from Hive to update the UI
       setState(() {}); // Update the UI to reflect changes
     }
+    updatedebterboxdata(widget.index, total_amount_off_dollar.toString(),
+        total_amount_off_sos.toString());
+    homeStateKey.currentState?.updateUI();
   }
 
   void loadItems() {
@@ -258,7 +262,7 @@ class _ItemsPageState extends State<ItemsPage> {
                             MaterialButton(
                               onPressed: () {
                                 this.setState(() {
-                                  updateItemInHiveBox(
+                                  updatedebterboxdata(
                                       widget.index,
                                       total_amount_off_dollar.toString(),
                                       total_amount_off_sos.toString());
@@ -278,175 +282,183 @@ class _ItemsPageState extends State<ItemsPage> {
               ),
             ));
 
-    return Scaffold(
-      floatingActionButton: FloatingActionButton(
-          backgroundColor: Colors.green,
-          child: Icon(
-            Icons.add,
-            color: Colors.white,
-          ),
-          onPressed: () {
-            oppendilogbox();
-          }),
-      body: SafeArea(
-        child: Column(
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 20.0),
-              width: double.infinity,
-              height: 200,
-              decoration: BoxDecoration(
-                  color: Colors.grey[350],
-                  borderRadius:
-                      BorderRadius.vertical(bottom: Radius.circular(25.0))),
-              child: Column(
-                children: [
-                  Row(
-                    children: [
-                      IconButton(
-                        onPressed: () {
-                          setState(() {
-                            updateItemInHiveBox(
-                                widget.index,
-                                total_amount_off_dollar.toString(),
-                                total_amount_off_sos.toString());
-                          });
-                          homeStateKey.currentState?.updateUI();
-
-                          Navigator.pop(context);
-                        },
-                        icon: Icon(Icons.arrow_back_ios),
-                      ),
-                      AutoSizeText(
-                        widget.debetorname!,
-                        textAlign: TextAlign.center,
-                        style: TextStyle(fontSize: 18.0),
-                        maxLines: 1, // Ensures the text does not wrap
-                        minFontSize:
-                            10, // Set the minimum font size you want to allow
-                        overflow: TextOverflow
-                            .ellipsis, // Adds an ellipsis at the end if the text is still too long
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  Row(
-                    children: [
-                      Text(
-                        "items",
-                        style: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.w300),
-                      ),
-                      Spacer(),
-                      Text(
-                        items.length.toString(),
-                        style: TextStyle(
-                            fontSize: 18.0, fontWeight: FontWeight.bold),
-                      )
-                    ],
-                  ),
-                  SizedBox(
-                    height: 15.0,
-                  ),
-                  DashedLine(
-                    color: Colors.grey,
-                  ),
-                  Total(
-                    text: "total dollar",
-                    total: "\$$total_amount_off_dollar",
-                  ),
-                  Total(
-                    text: "total shiling somali",
-                    total: "$total_amount_off_sos",
-                  ),
-                ],
+    return WillPopScope(
+        onWillPop: () async {
+          updatedebterboxdata(widget.index, total_amount_off_dollar.toString(),
+              total_amount_off_sos.toString());
+          homeStateKey.currentState?.updateUI();
+          return true; // return true if you want to allow the pop operation, false otherwise.
+        },
+        child: Scaffold(
+          floatingActionButton: FloatingActionButton(
+              backgroundColor: Colors.green,
+              child: Icon(
+                Icons.add,
+                color: Colors.white,
               ),
-            ),
-            Padding(
-              padding:
-                  const EdgeInsets.only(right: 100.0, top: 30.0, left: 10.0),
-              child: Row(
-                children: [
-                  SizedBox(width: 12),
-                  Expanded(
-                    // This will allow the first text to expand
-                    flex: 1, // You can adjust flex to control space allocation
-                    child: Text(
-                      "Item Name",
-                      overflow: TextOverflow
-                          .ellipsis, // Prevents text from breaking layout
-                      style: TextStyle(
-                          fontSize: 17.0, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                  Expanded(
-                    // This will keep this space even if there's no text
-                    flex: 1,
-                    child: Text(
-                      "dollar",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.0, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                  Expanded(
-                    // This will allow the number text to expand
-                    flex: 1,
-                    child: Text(
-                      "sos",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.0, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                  Expanded(
-                    // This will allow the number text to expand
-                    flex: 1,
-                    child: Text(
-                      "date",
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                          fontSize: 17.0, fontWeight: FontWeight.w400),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            DashedLine(
-              color: Colors.grey,
-            ),
-            items.isEmpty
-                ? SizedBox.shrink()
-                : Expanded(
-                    child: ListView.builder(
-                        itemCount: items.length,
-                        // In your ListView.builder
-                        itemBuilder: (context, index) {
-                          final item = items[index];
-                          return ItemsCard(
-                            itemname: item["value"][1],
-                            priceindollar: item["value"][2],
-                            priceinsos: item["value"][3],
-                            date: item["value"][4],
-                            onupdate: (){},
+              onPressed: () {
+                oppendilogbox();
+              }),
+          body: SafeArea(
+            child: Column(
+              children: [
+                Container(
+                  padding: EdgeInsets.symmetric(horizontal: 20.0),
+                  width: double.infinity,
+                  height: 200,
+                  decoration: BoxDecoration(
+                      color: Colors.grey[350],
+                      borderRadius:
+                          BorderRadius.vertical(bottom: Radius.circular(25.0))),
+                  child: Column(
+                    children: [
+                      Row(
+                        children: [
+                          IconButton(
                             onPressed: () {
-                              delete(
-                                  item["key"],
-                                  item["value"][1],
-                                  item["value"][2] == ""
-                                      ? ""
-                                      : '\$${item["value"][2]}',
-                                  item["value"][3] == " "
-                                      ? ""
-                                      : '${item["value"][3]}K shilling somali'); // Use the actual key
+                              setState(() {
+                                updatedebterboxdata(
+                                    widget.index,
+                                    total_amount_off_dollar.toString(),
+                                    total_amount_off_sos.toString());
+                              });
+                              homeStateKey.currentState?.updateUI();
+
+                              Navigator.pop(context);
                             },
-                          );
-                        }))
-          ],
-        ),
-      ),
-    );
+                            icon: Icon(Icons.arrow_back_ios),
+                          ),
+                          AutoSizeText(
+                            widget.debetorname!,
+                            textAlign: TextAlign.center,
+                            style: TextStyle(fontSize: 18.0),
+                            maxLines: 1, // Ensures the text does not wrap
+                            minFontSize:
+                                10, // Set the minimum font size you want to allow
+                            overflow: TextOverflow
+                                .ellipsis, // Adds an ellipsis at the end if the text is still too long
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            "items",
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.w300),
+                          ),
+                          Spacer(),
+                          Text(
+                            items.length.toString(),
+                            style: TextStyle(
+                                fontSize: 18.0, fontWeight: FontWeight.bold),
+                          )
+                        ],
+                      ),
+                      SizedBox(
+                        height: 15.0,
+                      ),
+                      DashedLine(
+                        color: Colors.grey,
+                      ),
+                      Total(
+                        text: "total dollar",
+                        total: "\$$total_amount_off_dollar",
+                      ),
+                      Total(
+                        text: "total shiling somali",
+                        total: "$total_amount_off_sos",
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(
+                      right: 100.0, top: 30.0, left: 10.0),
+                  child: Row(
+                    children: [
+                      SizedBox(width: 12),
+                      Expanded(
+                        // This will allow the first text to expand
+                        flex:
+                            1, // You can adjust flex to control space allocation
+                        child: Text(
+                          "Item Name",
+                          overflow: TextOverflow
+                              .ellipsis, // Prevents text from breaking layout
+                          style: TextStyle(
+                              fontSize: 17.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                      Expanded(
+                        // This will keep this space even if there's no text
+                        flex: 1,
+                        child: Text(
+                          "dollar",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 17.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                      Expanded(
+                        // This will allow the number text to expand
+                        flex: 1,
+                        child: Text(
+                          "sos",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 17.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                      Expanded(
+                        // This will allow the number text to expand
+                        flex: 1,
+                        child: Text(
+                          "date",
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                              fontSize: 17.0, fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                DashedLine(
+                  color: Colors.grey,
+                ),
+                items.isEmpty
+                    ? SizedBox.shrink()
+                    : Expanded(
+                        child: ListView.builder(
+                            itemCount: items.length,
+                            // In your ListView.builder
+                            itemBuilder: (context, index) {
+                              final item = items[index];
+                              return ItemsCard(
+                                itemname: item["value"][1],
+                                priceindollar: item["value"][2],
+                                priceinsos: item["value"][3],
+                                date: item["value"][4],
+                                onupdate: () {},
+                                onPressed: () {
+                                  delete(
+                                      item["key"],
+                                      item["value"][1],
+                                      item["value"][2] == ""
+                                          ? ""
+                                          : '\$${item["value"][2]}',
+                                      item["value"][3] == " "
+                                          ? ""
+                                          : '${item["value"][3]}K shilling somali'); // Use the actual key
+                                },
+                              );
+                            }))
+              ],
+            ),
+          ),
+        ));
   }
 }

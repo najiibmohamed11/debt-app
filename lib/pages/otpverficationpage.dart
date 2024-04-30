@@ -1,4 +1,6 @@
 import 'package:debt_manager/components/customdialog%20.dart';
+import 'package:debt_manager/pages/backuptakingui.dart';
+import 'package:debt_manager/pages/editprofilefirst.dart';
 import 'package:debt_manager/pages/home.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -84,8 +86,13 @@ class Otpverficationpage extends StatelessWidget {
                           verificationId: verificationId, smsCode: pin);
                   auth.signInWithCredential(_credential).then((result) {
                     if (result != null) {
-                      Navigator.push(context,
-                          MaterialPageRoute(builder: (context) =>  Home(key: homeStateKey)));
+                      Navigator.pushAndRemoveUntil(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => BackupUi()),
+                        (Route<dynamic> route) =>
+                            false, // This condition prevents any route from being retained.
+                      );
                     }
                   }).catchError((e) {
                     showDialog(

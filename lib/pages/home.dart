@@ -1,12 +1,12 @@
 import 'dart:async';
-import 'dart:ffi';
 import 'dart:math';
 
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:debt_manager/components/debtorcard.dart';
 import 'package:debt_manager/components/totalcard.dart';
 import 'package:debt_manager/pages/items.dart';
-import 'package:debt_manager/utility/backups.dart';
+import 'package:debt_manager/utility/backups/backups.dart';
+import 'package:debt_manager/utility/backups/restoringbackup.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
@@ -18,6 +18,7 @@ GlobalKey<_HomeState> homeStateKey = GlobalKey();
 class Home extends StatefulWidget {
   const Home({Key? key})
       : super(key: key); // Ensure key is handled properly here
+  static String id = "Home";
 
   @override
   State<Home> createState() => _HomeState();
@@ -49,8 +50,6 @@ class _HomeState extends State<Home> {
 
     super.initState();
   }
-
-  //check internet conection
 
   void totalamounts() {
     double tempTotalSos = 0.0; // Temporary variable to accumulate SOS total.
@@ -169,7 +168,6 @@ class _HomeState extends State<Home> {
                 actions: [
                   MaterialButton(
                     onPressed: () {
-
                       setState(() {
                         addNewDebtor(nameofthedebter!, selectedCategory);
                         pnone = "61...";
@@ -187,7 +185,6 @@ class _HomeState extends State<Home> {
             ),
           ),
         );
-
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,

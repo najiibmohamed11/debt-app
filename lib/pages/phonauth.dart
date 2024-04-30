@@ -1,4 +1,5 @@
 import 'package:debt_manager/components/customdialog%20.dart';
+import 'package:debt_manager/pages/editprofilefirst.dart';
 import 'package:debt_manager/pages/home.dart';
 import 'package:debt_manager/pages/otpverficationpage.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,6 +8,7 @@ import 'package:intl_phone_number_input/intl_phone_number_input.dart';
 
 class PhoneAuth extends StatefulWidget {
   const PhoneAuth({super.key});
+  static String id = "PhoneAuth";
 
   @override
   State<PhoneAuth> createState() => _PhoneAuthState();
@@ -23,10 +25,8 @@ class _PhoneAuthState extends State<PhoneAuth> {
         phoneNumber: '+252' + controller.text.trim(),
         verificationCompleted: (PhoneAuthCredential authCredential) async {
           await _auth.signInWithCredential(authCredential).then((value) {
-            Navigator.push(
-                context,
-                MaterialPageRoute(
-                    builder: (context) => Home(key: homeStateKey)));
+            Navigator.push(context,
+                MaterialPageRoute(builder: (context) => EditProfileFirst()));
           });
         },
         verificationFailed: ((error) async {
