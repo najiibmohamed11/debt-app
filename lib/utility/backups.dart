@@ -9,7 +9,16 @@ class Backups {
   Future checkconnection() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.none) {
-      print("taking back up...........");
+      print("Connected. Preparing to backup...");
+
+      DocumentReference documentReference =
+          FirebaseFirestore.instance.collection("debtors").doc("682410476");
+
+      // First, delete the existing document
+      await documentReference.delete();
+      print("Existing data deleted.");
+
+      // Check if local data is available to backup
       if (itemsBox.isNotEmpty) {
         itemsBox.toMap().forEach((key, value) {
           itemlist.add({"key": key, "value": value});
@@ -17,16 +26,14 @@ class Backups {
       }
       print(itemlist);
 
-      DocumentReference documentReference =
-          FirebaseFirestore.instance.collection("debtors").doc("682410476");
-
-// Set the data for the document
-      documentReference.set({
+      // Create a new document with the backup data
+      await documentReference.set({
         'items': itemlist,
         'store name': "hirey",
       });
+      print("Backup taken successfully.");
     } else {
-      print("internmet ma heysataa");
+      print("No internet connection.");
     }
   }
 }

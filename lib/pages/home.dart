@@ -88,7 +88,6 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     totalamounts();
-    backup.checkconnection();
     final List<String> categories = ['male', 'female']; // Examp
 
     Future<void> opendilogbox() => showDialog(

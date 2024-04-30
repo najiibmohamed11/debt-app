@@ -2,10 +2,13 @@ import 'dart:async';
 
 import 'package:debt_manager/pages/home.dart';
 import 'package:debt_manager/pages/items.dart';
+import 'package:debt_manager/pages/phonauth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:hive_flutter/hive_flutter.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:debt_manager/utility/backups.dart';
+
 
 Future<void> main() async {
   WidgetsFlutterBinding
@@ -30,8 +33,10 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+        backup.checkconnection();
+
     return MaterialApp(
-      home:  Home(key: homeStateKey),
+      home:  PhoneAuth(),
       theme: ThemeData(
         // Optional: Define a theme for the application
         primarySwatch: Colors.blue,
