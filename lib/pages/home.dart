@@ -1,17 +1,21 @@
 import 'dart:async';
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:debt_manager/components/debtorcard.dart';
 import 'package:debt_manager/components/totalcard.dart';
 import 'package:debt_manager/pages/items.dart';
+import 'package:debt_manager/pages/phonauth.dart';
 import 'package:debt_manager/utility/backups/backups.dart';
 import 'package:debt_manager/utility/backups/restoringbackup.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:hive/hive.dart';
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:uuid/uuid.dart';
 
 GlobalKey<_HomeState> homeStateKey = GlobalKey();
 
@@ -32,6 +36,7 @@ double? total_amount_off_sos = 0.0;
 String _searchQuery = '';
 Backups backup = new Backups();
 final debtorsBox = Hive.box("debtorsBox");
+final userbox = Hive.box('usercridatial');
 
 Future<void> addNewDebtor(String newDebtor, String selectedCategory) async {
   var debtorsBox = Hive.box("debtorsBox");
@@ -44,11 +49,37 @@ Future<void> addNewDebtor(String newDebtor, String selectedCategory) async {
 }
 
 class _HomeState extends State<Home> {
+  final String sessionId = userbox.get("sessionId");
+  // Generate a new session ID for each login attempt
+
   @override
+  void checkSession(User user) {
+    FirebaseFirestore.instance
+        .collection('user_sessions')
+        .doc(user.uid)
+        .snapshots()
+        .listen((snapshot) {
+      if (snapshot.data()?['sessionId'] != sessionId) {
+        FirebaseAuth.instance.signOut();
+        Navigator.pushReplacementNamed(context, PhoneAuth.id);
+      }
+    });
+    if (sessionId == null) {
+      Navigator.pushReplacementNamed(context, PhoneAuth.id);
+    }
+    print(sessionId);
+  }
+
   void initState() {
     // TODO: implement initState
 
     super.initState();
+    FirebaseAuth.instance.authStateChanges().listen((User? user) {
+      if (user != null) {
+        checkSession(
+            user); // This ensures the listener is attached whenever the app starts and the user is already logged in
+      }
+    });
   }
 
   void totalamounts() {
