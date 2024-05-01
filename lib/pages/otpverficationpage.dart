@@ -85,14 +85,46 @@ class Otpverficationpage extends StatelessWidget {
                       PhoneAuthProvider.credential(
                           verificationId: verificationId, smsCode: pin);
                   auth.signInWithCredential(_credential).then((result) {
-                    if (result != null) {
-                      Navigator.pushAndRemoveUntil(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => BackupUi()),
-                        (Route<dynamic> route) =>
-                            false, // This condition prevents any route from being retained.
-                      );
+                    if (result.user != null) {
+                      // Ensuring the user is not null before proceeding
+                      User user = result.user!;
+
+                      // Safely checking if this is the first login
+                      DateTime? creationTime = user.metadata.creationTime;
+                      DateTime lastSignInTime =
+                          user.metadata.lastSignInTime ?? DateTime.now();
+
+                      if (creationTime != null) {
+                        bool isFirstLogin = creationTime
+                                .difference(lastSignInTime)
+                                .inSeconds
+                                .abs() <
+                            2;
+                        if (isFirstLogin) {
+                          // First login logic
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => EditProfileFirst()),
+                            (Route<dynamic> route) => false,
+                          );
+                        } else {
+                          // Logic for users who have logged in before
+                          Navigator.pushAndRemoveUntil(
+                            context,
+                            MaterialPageRoute(builder: (context) => BackupUi()),
+                            (Route<dynamic> route) => false,
+                          );
+                        }
+                      } else {
+                        // Handle case where creationTime is null, if necessary
+                        Navigator.pushAndRemoveUntil(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => EditProfileFirst()),
+                          (Route<dynamic> route) => false,
+                        );
+                      }
                     }
                   }).catchError((e) {
                     showDialog(
