@@ -121,101 +121,101 @@ class _HomeState extends State<Home> {
     final List<String> categories = ['male', 'female']; // Examp
 
     Future<void> opendilogbox() => showDialog(
-          context: context,
-          builder: (context) => Dialog(
-            child: Container(
-              width:
-                  MediaQuery.of(context).size.width * 0.9, // Adjust width here
-              constraints: BoxConstraints(
-                minHeight: 200.0, // Minimum height
-                maxHeight:
-                    MediaQuery.of(context).size.height * 0.5, // Maximum height
-              ),
-              child: AlertDialog(
-                title: Text("Add New Debt"),
-                content: Column(
-                  mainAxisSize:
-                      MainAxisSize.min, // Adjust column height to fit contents
-                  children: [
-                    TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          nameofthedebter = value;
-                        });
-                      },
-                      decoration: InputDecoration(
-                        hintText: "Name",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    TextField(
-                      onChanged: (value) {
-                        setState(() {
-                          pnone = value;
-                        });
-                      },
-                      keyboardType: TextInputType.phone,
-                      decoration: InputDecoration(
-                        hintText: "phone number",
-                        filled: true,
-                        fillColor: Colors.white,
-                        border: InputBorder.none,
-                      ),
-                    ),
-                    SizedBox(
-                      height: 20.0,
-                    ),
-                    Expanded(
-                      child: DropdownButtonFormField<String>(
-                        value: selectedCategory,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10.0),
+        context: context,
+        builder: (context) => Dialog(
+              child: Container(
+                width: MediaQuery.of(context).size.width *
+                    0.9, // Adjust width here
+                constraints: BoxConstraints(
+                  minHeight: 200.0, // Minimum height
+                  maxHeight: MediaQuery.of(context).size.height *
+                      0.7, // Maximum height
+                ),
+                child: AlertDialog(
+                  title: Text("Add New Debt"),
+                  content: SingleChildScrollView(
+                    // Makes the column scrollable
+                    child: Column(
+                      mainAxisSize: MainAxisSize
+                          .min, // Adjust column height to fit contents
+                      children: [
+                        TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              nameofthedebter = value;
+                            });
+                          },
+                          decoration: InputDecoration(
+                            hintText: "Name",
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: InputBorder.none,
                           ),
                         ),
-                        onChanged: (String? newValue) {
-                          setState(() {
-                            selectedCategory = newValue!;
-                          });
-                        },
-                        items: categories
-                            .map<DropdownMenuItem<String>>((String value) {
-                          return DropdownMenuItem<String>(
-                            value: value,
-                            child: Text(value),
-                          );
-                        }).toList(),
-                      ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        TextField(
+                          onChanged: (value) {
+                            setState(() {
+                              pnone = value;
+                            });
+                          },
+                          keyboardType: TextInputType.phone,
+                          decoration: InputDecoration(
+                            hintText: "phone number",
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: InputBorder.none,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10.0,
+                        ),
+                        DropdownButtonFormField<String>(
+                          value: selectedCategory,
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                          ),
+                          onChanged: (String? newValue) {
+                            setState(() {
+                              selectedCategory = newValue!;
+                            });
+                          },
+                          items: categories
+                              .map<DropdownMenuItem<String>>((String value) {
+                            return DropdownMenuItem<String>(
+                              value: value,
+                              child: Text(value),
+                            );
+                          }).toList(),
+                        ),
+                      ],
                     ),
+                  ),
+                  actions: [
+                    MaterialButton(
+                      onPressed: () {
+                        setState(() {
+                          addNewDebtor(nameofthedebter!, selectedCategory);
+                          pnone = "61...";
+                        });
+                        Navigator.pop(context);
+                      },
+                      child: Text(
+                        "Add",
+                        style: TextStyle(color: Colors.white),
+                      ),
+                      color: Colors.green,
+                    )
                   ],
                 ),
-                actions: [
-                  MaterialButton(
-                    onPressed: () {
-                      setState(() {
-                        addNewDebtor(nameofthedebter!, selectedCategory);
-                        pnone = "61...";
-                      });
-                      Navigator.pop(context);
-                    },
-                    child: Text(
-                      "Add",
-                      style: TextStyle(color: Colors.white),
-                    ),
-                    color: Colors.green,
-                  )
-                ],
               ),
-            ),
-          ),
-        );
+            ));
     return Scaffold(
       floatingActionButton: FloatingActionButton(
           backgroundColor: Colors.green,
@@ -234,12 +234,17 @@ class _HomeState extends State<Home> {
             children: [
               Row(
                 children: [
-                  Text(
-                    "HI Welcome👋",
-                    style: TextStyle(
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.w600,
-                        color: Colors.black),
+                  GestureDetector(
+                    onTap: () {
+                      FirebaseAuth.instance.signOut();
+                    },
+                    child: Text(
+                      "HI Welcome👋",
+                      style: TextStyle(
+                          fontSize: 25.0,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.black),
+                    ),
                   ),
                   Spacer(),
                   CircleAvatar(

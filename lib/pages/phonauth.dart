@@ -16,10 +16,14 @@ class PhoneAuth extends StatefulWidget {
 
 class _PhoneAuthState extends State<PhoneAuth> {
   final TextEditingController controller = TextEditingController();
+  bool _isLoading = false;
 
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
   _signInWithMobileNumber() async {
+    setState(() {
+      _isLoading = true;
+    });
     try {
       await _auth.verifyPhoneNumber(
         phoneNumber: '+252' + controller.text.trim(),
@@ -30,11 +34,15 @@ class _PhoneAuthState extends State<PhoneAuth> {
           });
         },
         verificationFailed: ((error) async {
+          setState(() {
+            _isLoading = false;
+          });
           print("errrrrrrrrrrrrrrrrrrrrrrrrrrr$error");
           showDialog(
             context: context,
             builder: (context) => CustomDialog(
               title: "Verification failed",
+              
               content: error.toString(),
               onPressed: () {
                 Navigator.pop(context);
@@ -43,7 +51,10 @@ class _PhoneAuthState extends State<PhoneAuth> {
           );
         }),
         codeSent: (String verificationId, [int? forceResendingToken]) {
-          Navigator.push(
+          setState(() {
+            _isLoading = false;
+          });
+          Navigator.pushAndRemoveUntil(
             context,
             MaterialPageRoute(
               builder: (context) => Otpverficationpage(
@@ -51,6 +62,7 @@ class _PhoneAuthState extends State<PhoneAuth> {
                 number: controller.text,
               ),
             ),
+            (Route<dynamic> route) => false,
           );
         },
         codeAutoRetrievalTimeout: (String verificationId) {
@@ -60,7 +72,11 @@ class _PhoneAuthState extends State<PhoneAuth> {
       );
     } catch (e) {
       print('Error during verification: $e');
+      setState(() {
+        _isLoading = false;
+      });
     }
+   
   }
 
   //pop up
@@ -69,94 +85,104 @@ class _PhoneAuthState extends State<PhoneAuth> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: SafeArea(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 5, horizontal: 15),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(8),
-                border: Border.all(color: Colors.black.withOpacity(0.13)),
-                boxShadow: [
-                  BoxShadow(
-                    color: Color(0xffeeeeee),
-                    blurRadius: 10,
-                    offset: Offset(0, 4),
-                  ),
-                ],
-              ),
-              child: Stack(
-                children: [
-                  InternationalPhoneNumberInput(
-                    onInputChanged: (PhoneNumber number) {},
-                    onInputValidated: (bool value) {
-                      print(value);
-                    },
-                    selectorConfig: SelectorConfig(
-                      selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
-                      showFlags: true,
-                      useEmoji: true,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 18.0),
+          child: _isLoading
+              ? Center(child: CircularProgressIndicator())
+              : Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 5, horizontal: 15),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(8),
+                        border:
+                            Border.all(color: Colors.black.withOpacity(0.13)),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Color(0xffeeeeee),
+                            blurRadius: 10,
+                            offset: Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Stack(
+                        children: [
+                          InternationalPhoneNumberInput(
+                            onInputChanged: (PhoneNumber number) {},
+                            onInputValidated: (bool value) {
+                              print(value);
+                            },
+                            selectorConfig: SelectorConfig(
+                              selectorType: PhoneInputSelectorType.BOTTOM_SHEET,
+                              showFlags: true,
+                              useEmoji: true,
+                            ),
+                            countries: ['SO'],
+                            ignoreBlank: false,
+                            autoValidateMode: AutovalidateMode.disabled,
+                            selectorTextStyle: TextStyle(color: Colors.black),
+                            textFieldController: controller,
+                            formatInput: false,
+                            maxLength: 9,
+                            keyboardType: TextInputType.numberWithOptions(
+                                signed: true, decimal: true),
+                            cursorColor: Colors.black,
+                            inputDecoration: InputDecoration(
+                              contentPadding:
+                                  EdgeInsets.only(bottom: 15, left: 0),
+                              border: InputBorder.none,
+                              hintText: 'Phone Number',
+                              hintStyle: TextStyle(
+                                  color: Colors.grey.shade500, fontSize: 16),
+                            ),
+                            onSaved: (PhoneNumber number) {
+                              print('On Saved: $number');
+                            },
+                          ),
+                          Positioned(
+                            left: 90,
+                            top: 8,
+                            bottom: 8,
+                            child: Container(
+                              height: 40,
+                              width: 1,
+                              color: Colors.black.withOpacity(0.13),
+                            ),
+                          )
+                        ],
+                      ),
                     ),
-                    countries: ['SO'],
-                    ignoreBlank: false,
-                    autoValidateMode: AutovalidateMode.disabled,
-                    selectorTextStyle: TextStyle(color: Colors.black),
-                    textFieldController: controller,
-                    formatInput: false,
-                    maxLength: 9,
-                    keyboardType: TextInputType.numberWithOptions(
-                        signed: true, decimal: true),
-                    cursorColor: Colors.black,
-                    inputDecoration: InputDecoration(
-                      contentPadding: EdgeInsets.only(bottom: 15, left: 0),
-                      border: InputBorder.none,
-                      hintText: 'Phone Number',
-                      hintStyle:
-                          TextStyle(color: Colors.grey.shade500, fontSize: 16),
-                    ),
-                    onSaved: (PhoneNumber number) {
-                      print('On Saved: $number');
-                    },
-                  ),
-                  Positioned(
-                    left: 90,
-                    top: 8,
-                    bottom: 8,
-                    child: Container(
-                      height: 40,
-                      width: 1,
-                      color: Colors.black.withOpacity(0.13),
-                    ),
-                  )
-                ],
-              ),
-            ),
-            SizedBox(height: 100),
-            MaterialButton(
-              minWidth: double.infinity,
-              onPressed: () async {
-                setState(() {});
+                    SizedBox(height: 100),
+                    MaterialButton(
+                      minWidth: double.infinity,
+                      onPressed: () async {
+                        setState(() {});
 
-                try {
-                  await _signInWithMobileNumber();
-                } catch (e) {
-                  print('Error during sign in: $e');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(
-                          'An error occurred during sign-in. Please try again.'),
+                        try {
+                          await _signInWithMobileNumber();
+                        } catch (e) {
+                          print('Error during sign in: $e');
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(
+                              content: Text(
+                                  'An error occurred during sign-in. Please try again.'),
+                            ),
+                          );
+                        }
+                      },
+                      color: Colors.green,
+                      shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(5)),
+                      padding:
+                          EdgeInsets.symmetric(vertical: 15, horizontal: 30),
+                      child: Text("Request OTP",
+                          style: TextStyle(color: Colors.white)),
                     ),
-                  );
-                }
-              },
-              color: Colors.lightBlue,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(5)),
-              padding: EdgeInsets.symmetric(vertical: 15, horizontal: 30),
-              child: Text("Request OTP", style: TextStyle(color: Colors.white)),
-            ),
-          ],
+                  ],
+                ),
         ),
       ),
     );

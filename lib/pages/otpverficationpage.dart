@@ -30,7 +30,7 @@ class Otpverficationpage extends StatelessWidget {
         color: Colors.white,
       ),
       decoration: BoxDecoration(
-        color: Colors.lightBlue,
+        color: Colors.green,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: Colors.transparent),
       ),
@@ -38,7 +38,10 @@ class Otpverficationpage extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.green,
-        title: const Text('OTP TextField'),
+        title: const Text(
+          'OTP TextField',
+          style: TextStyle(color: Colors.white),
+        ),
         centerTitle: true,
       ),
       body: Consumer<UseridGenerator>(builder: (context, value, child) {
@@ -106,7 +109,8 @@ class Otpverficationpage extends StatelessWidget {
                             .set({
                           'sessionId': sessionId,
                         });
-        Provider.of<UseridGenerator>(context, listen: false).setSession(sessionId);
+                        Provider.of<UseridGenerator>(context, listen: false)
+                            .setSession(sessionId);
 
                         if (creationTime != null) {
                           bool isFirstLogin = creationTime
