@@ -110,7 +110,8 @@ class _BackupUiState extends State<BackupUi> {
                     SizedBox(height: 10.0),
                     MaterialButton(
                       minWidth: 150,
-                      onPressed: () {
+                      onPressed: () async {
+                        await restoreyoudata.skipbackup();
                         Navigator.pushAndRemoveUntil(
                           context,
                           MaterialPageRoute(

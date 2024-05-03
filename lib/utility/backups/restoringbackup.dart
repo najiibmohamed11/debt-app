@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -7,11 +9,17 @@ class RestoringBackups {
   final itemsBox = Hive.box("itemsBox");
   final debtorsBox = Hive.box("debtorsBox");
   var currentUser = FirebaseAuth.instance.currentUser;
+  Future skipbackup() async {
+    await itemsBox.clear();
+    await debtorsBox.clear();
+  }
 
   Future restoreData() async {
     var connectivityResult = await Connectivity().checkConnectivity();
     if (connectivityResult != ConnectivityResult.none) {
       print("Connected. Preparing to restore data...");
+    await  itemsBox.clear();
+     await itemsBox.clear();
 
       // Fetch data from Firestore
       DocumentReference documentReference = FirebaseFirestore.instance
@@ -26,14 +34,13 @@ class RestoringBackups {
           List<dynamic> dbtors = data['debtors'];
 
           // Clear the Hive box before restoring
-       
 
           // Restore data to Hive box
           for (var item in items) {
             await itemsBox.put(item['key'], item['value']);
           }
           for (var debtor in dbtors) {
-            await debtorsBox.put(debtor['key'],debtor['value']);
+            await debtorsBox.put(debtor['key'], debtor['value']);
           }
 
           print("Data restored successfully.");

@@ -48,7 +48,6 @@ class _ItemsPageState extends State<ItemsPage> {
   @override
   void dispose() {
     // TODO: implement dispose
-   
 
     // homeStateKey.currentState?.updateUI();
     super.dispose();
@@ -281,6 +280,72 @@ class _ItemsPageState extends State<ItemsPage> {
                         )),
               ),
             ));
+    Future<void> openUpdateDialog(
+        String itemName, String dollar, String sos, int key) async {
+      TextEditingController itemNameController =
+          TextEditingController(text: itemName);
+      TextEditingController dollarController =
+          TextEditingController(text: dollar);
+      TextEditingController sosController = TextEditingController(text: sos);
+
+      await showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('Update Item'),
+            content: SingleChildScrollView(
+              child: ListBody(
+                children: <Widget>[
+                  TextField(
+                    controller: itemNameController,
+                    decoration: InputDecoration(labelText: 'Item Name'),
+                  ),
+                  TextField(
+                    controller: dollarController,
+                    decoration: InputDecoration(labelText: 'Price in Dollar'),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                  ),
+                  TextField(
+                    controller: sosController,
+                    decoration:
+                        InputDecoration(labelText: 'Price in Somali Shilling'),
+                    keyboardType:
+                        TextInputType.numberWithOptions(decimal: true),
+                  ),
+                ],
+              ),
+            ),
+            actions: <Widget>[
+              TextButton(
+                child: Text('Cancel'),
+                onPressed: () {
+                  Navigator.of(context).pop();
+                },
+              ),
+              TextButton(
+                child: Text('Update'),
+                onPressed: () {
+                  // Here you handle the update logic
+                  var updatedItem = [
+                    widget.debetorname,
+                    itemNameController.text,
+                    dollarController.text,
+                    sosController.text,
+                    DateFormat('d MMM').format(DateTime.now())
+                  ];
+
+                  itemsBox.put(key, updatedItem);
+                  loadItems(); // Refresh the list to show the updated item
+                  Navigator.of(context).pop(); // Close the dialog
+                  setState(() {}); // Refresh UI if needed
+                },
+              ),
+            ],
+          );
+        },
+      );
+    }
 
     return WillPopScope(
         onWillPop: () async {
@@ -442,7 +507,13 @@ class _ItemsPageState extends State<ItemsPage> {
                                 priceindollar: item["value"][2],
                                 priceinsos: item["value"][3],
                                 date: item["value"][4],
-                                onupdate: () {},
+                                onupdate: () async {
+                                  await openUpdateDialog(
+                                      item["value"][1],
+                                      item["value"][2],
+                                      item["value"][3],
+                                      item["key"]);
+                                },
                                 onPressed: () {
                                   delete(
                                       item["key"],
