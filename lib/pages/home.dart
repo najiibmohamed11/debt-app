@@ -234,22 +234,20 @@ class _HomeState extends State<Home> {
             children: [
               Row(
                 children: [
-                  GestureDetector(
-                    onTap: () {
-                      FirebaseAuth.instance.signOut();
-                    },
-                    child: Text(
-                      "HI Welcome👋",
-                      style: TextStyle(
-                          fontSize: 25.0,
-                          fontWeight: FontWeight.w600,
-                          color: Colors.black),
-                    ),
+                  Text(
+                    "HI Welcome👋",
+                    style: TextStyle(
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.w600,
+                        color: Colors.black),
                   ),
                   Spacer(),
                   CircleAvatar(
                     backgroundColor: Colors.green,
-                    child: Text("T"),
+                    child: Text(
+                      userbox.get("store name").substring(0, 1) ?? "G",
+                      style: TextStyle(fontSize: 25.0, color: Colors.white),
+                    ),
                   ),
                 ],
               ),
