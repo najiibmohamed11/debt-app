@@ -235,7 +235,7 @@ class _HomeState extends State<Home> {
               Row(
                 children: [
                   Text(
-                    "HI Welcome👋",
+                    "${userbox.get("store name")}👋",
                     style: TextStyle(
                         fontSize: 25.0,
                         fontWeight: FontWeight.w600,
